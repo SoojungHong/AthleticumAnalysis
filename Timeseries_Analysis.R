@@ -25,7 +25,7 @@ con = file(trainingData, "r")
 
 #----------------
 # Read 10000 rows
-partialData <- read.csv(con, nrows=10)
+partialData <- read.csv(con, nrows=10000)
 partialData
 str(partialData)
 
@@ -50,6 +50,8 @@ ggplot(aes(x = sortedData.TimeID, y = sortedData.GrossAmount), data = time_gross
 # transaction time & warengroup 
 time_product_Data <- data.frame(sortedData$DateID, sortedData$TimeID, sortedData$ProductID)
 time_product_Data
+colnames(time_product_Data) <- c("DateID", "TimeID", "ProductID")
+time_product_Data
 #need to join with Product data 
 
 #----------------------------------
@@ -73,10 +75,31 @@ prodDesc
 joinedData <- merge(time_product_Data, prodDesc, by="ProductID", all.x = TRUE)
 joinedData
 str(joinedData)
+#simplify the time into two categories : before 1200, then 0, after 1200 then 1
+#AM and PM 
+#joinedData$TimeID[joinedData$TimeID < 1200] <- 0
+#joinedData
+#joinedData$TimeID[joinedData$TimeID >= 1200] <- 1
+#joinedData
+
+joinedData$TimeID[joinedData$TimeID < 1000] <- 0
+joinedData
+joinedData$TimeID[(joinedData$TimeID >= 1000) & (joinedData$TimeID < 1400) ] <- 1
+joinedData
+joinedData$TimeID[joinedData$TimeID >= 1400] <- 2 
+joinedData
+
 table(joinedData$WgrClassCodeDesc)
 hist(joinedData$ProductID, col="green", breaks=30, xlab="WarenGrp", main="Histogram of # of WarenGroup") 
 library(plyr)
 count(joinedData$WgrClassCodeDesc)
+
+#----------------------------------------------
+# relationship between timeID and warenGroup
+time2waren <- table(joinedData$TimeID, joinedData$WgrClassCodeDesc)
+time2waren
+barplot(time2waren,legend=T,beside=T,main='Purchased Time and WarenGroup')
+
 
 
 
