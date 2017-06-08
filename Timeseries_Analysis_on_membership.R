@@ -1,9 +1,8 @@
-#----------------------------------------------------
-# Time-Series Analysis of factSalesTransaction.csv
-# June 6. 2017 
+#----------------------------------------------
+# Time Series Analysis on membership customer 
 #
-# Soojung Hong 
-#---------------------------------------------------
+# Soojung Hong (June 8. 2017) 
+
 
 #-------------------------
 # package installation 
@@ -29,30 +28,30 @@ partialData <- read.csv(con, nrows=20000)
 partialData
 str(partialData)
 
-#-----------------
-# sort by DateID
-sortedData <- partialData[order(partialData$DateID),]
+#-----------------------------
+# sort by DateID and TimeID
+sortedData <- partialData[order(partialData$DateID, partialData$TimeID),]
 sortedData
 
 str(sortedData)
 
-#----------------------------------
-# transaction time & gross amount 
-time_grossamount_Data <- data.frame(sortedData$TimeID, sortedData$GrossAmount)
-time_grossamount_Data
 
-theme_set(theme_bw()) # Change the theme to my preference
-ggplot(aes(x = sortedData.TimeID, y = sortedData.GrossAmount), data = time_grossamount_Data
-) + geom_point()
+#-----------------------------------------------------------
+# customers with membershipCardID and StoreID and productID
+members <- sortedData[sortedData[, "MembershipCardID"] != -1,] 
+str(members)
+members_times_products <- data.frame(members$DateID, members$TimeID, members$MembershipCardID, members$ProductID)
+members_times_products
 
 
 #--------------------------------
-# transaction time & warengroup 
-time_product_Data <- data.frame(sortedData$DateID, sortedData$TimeID, sortedData$ProductID)
-time_product_Data
-colnames(time_product_Data) <- c("DateID", "TimeID", "ProductID")
-time_product_Data
+# transaction date, time, membershipID, productID 
+#time_product_Data <- data.frame(store_and_members$DateID, store_and_members$TimeID, store_and_members$MembershipCardID, store_and_members$ProductID)
+#time_product_Data
+colnames(members_times_products) <- c("DateID", "TimeID", "MembershipCardID", "ProductID")
+members_times_products
 #need to join with Product data 
+
 
 #----------------------------------
 #  Read product data 
@@ -70,9 +69,10 @@ prodDesc <- productData[columns]
 prodDesc
 
 
+
 #------------------------------------------------------
 # Join 'time_product_Data' and 'productData' by="productID"
-joinedData <- merge(time_product_Data, prodDesc, by="ProductID", all.x = TRUE)
+joinedData <- merge(members_times_products, prodDesc, by="ProductID", all.x = TRUE)
 joinedData
 str(joinedData)
 #simplify the time into two categories : before 1200, then 0, after 1200 then 1
@@ -102,11 +102,3 @@ barplot(time2waren,legend=T,beside=T,main='Purchased Time and WarenGroup')
 
 
 
-
-#----------------------------
-# Etc
-# 1. time format conversion 
-timeData <- formatC(sortedData$TimeID, width=4, flag="0") #pad 0 if time has 3 digits
-timeData
-format(strptime(timeData, format="%H%M"), format = "%H:%M")
-timeData
