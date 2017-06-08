@@ -24,8 +24,8 @@ con = file(trainingData, "r")
 
 
 #----------------
-# Read 20000 rows
-partialData <- read.csv(con, nrows=20000)
+# Read 50000 rows
+partialData <- read.csv(con, nrows=50000)
 partialData
 str(partialData)
 
